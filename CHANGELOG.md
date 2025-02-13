@@ -1,5 +1,11 @@
 # @wc-toolkit/jsdoc-tags
 
+## 1.0.3
+
+### Patch Changes
+
+- 7377763: Fixed broken image path in README
+
 ## 1.0.2
 
 ### Patch Changes
