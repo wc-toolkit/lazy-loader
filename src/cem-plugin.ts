@@ -73,6 +73,12 @@ export function jsDocTagsPlugin(options: Options = {}) {
   };
 }
 
+/**
+ * This function parses the JSDoc tags and adds them to the component metadata in the custom elements manifest.
+ * @param params Parameters passed by the analyzer
+ * @param tags custom jsdoc tags
+ * @returns 
+ */
 export function parseJsDocTags(params: AnalyzePhaseParams, tags: CustomTag) {
   if (params.node.kind !== params.ts.SyntaxKind.ClassDeclaration) {
     return;
