@@ -1,25 +1,25 @@
-import { customJSDocTagsPlugin} from './dist/index.js';
+import { jsDocTagsPlugin } from "./dist/index.js";
 
 export default {
   /** Globs to analyze */
-  globs: ['demo/src/**/*.js'],
+  globs: ["demo/src/**/*.js"],
   /** Directory to output CEM to */
-  outdir: 'demo',
+  outdir: "demo",
   /** Run in dev mode, provides extra logging */
-  dev: true,
+  dev: false,
   /** Output CEM path to `package.json`, defaults to true */
   packagejson: false,
   plugins: [
-    customJSDocTagsPlugin({
+    jsDocTagsPlugin({
       tags: {
         status: {
-          description: 'Status of the component',
+          description: "Status of the component",
         },
         dependency: {
           isArray: true,
-          mappedName: 'dependencies',
+          mappedName: "dependencies",
         },
-      }
-    })
+      },
+    }),
   ],
-}
+};

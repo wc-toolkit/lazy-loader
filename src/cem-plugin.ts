@@ -54,76 +54,83 @@ let userOptions: Options = {
 export function jsDocTagsPlugin(options: Options = {}) {
   userOptions = deepMerge(userOptions, options);
   const log = new Logger(userOptions.debug);
-  
+
   if (options.skip) {
     log.yellow("[jsdoc-tags] - Skipped");
     return;
   }
 
   log.log("[jsdoc-tags] - Updating Custom Elements Manifest...");
-  userOptions = options;
 
   return {
     name: "jsdoc-tags-plugin",
-    analyzePhase({ ts, node, moduleDoc }: AnalyzePhaseParams) {
-      if (node.kind !== ts.SyntaxKind.ClassDeclaration) {
-        return;
-      }
-
-      const className = (
-        node as unknown as ts.ClassDeclaration
-      ).name!.getText();
-      const component = moduleDoc?.declarations?.find(
-        (declaration) => declaration.name === className
-      ) as Component | undefined;
-      const customTags = Object.keys(userOptions.tags || {});
-      let customComments = "/**";
-
-      // @ts-expect-error jsDoc is not a public API
-      node.jsDoc?.forEach((jsDoc: JSDocTag) => {
-        jsDoc?.tags?.forEach(
-          (tag: { tagName: { getText: () => string }; comment: string }) => {
-            const tagName = tag.tagName.getText();
-
-            if (customTags.includes(tagName)) {
-              customComments += `\n * @${tagName} ${tag.comment}`;
-            }
-          }
-        );
-      });
-
-      const parsed = parse(`${customComments}\n */`);
-      parsed[0]?.tags?.forEach((tagMeta) => {
-        const tagOptions = userOptions.tags![tagMeta.tag];
-        if (!tagOptions) {
-          return;
-        }
-
-        const propName = tagOptions.mappedName || tagMeta.tag;
-        if (!component) {
-          return;
-        }
-        const existingProp = component[propName];
-        const cemTag: CEMTag = {
-          name: tagMeta.name === "-" ? "" : tagMeta.name,
-          default: tagMeta.default,
-          description: tagMeta.description.replace(/^\s?-/, "").trim(), // removes leading dash
-          type: tagMeta.type ? { text: tagMeta.type } : undefined,
-        };
-
-        if (!existingProp && tagOptions.isArray) {
-          component[propName] = [cemTag];
-        } else if (Array.isArray(component[propName])) {
-          component[propName].push(cemTag);
-        } else if (existingProp && !Array.isArray(component[propName])) {
-          component[propName] = [component[propName], cemTag];
-        } else {
-          component[propName] = cemTag;
-        }
-      });
+    analyzePhase(params: AnalyzePhaseParams) {
+      parseJsDocTags(params, userOptions.tags || {});
     },
     packageLinkPhase: () => {
       log.green("[cem-expanded-types] - Custom Elements Manifest updated.");
     },
   };
+}
+
+/**
+ * This function parses the JSDoc tags and adds them to the component metadata in the custom elements manifest.
+ * @param params Parameters passed by the analyzer
+ * @param tags custom jsdoc tags
+ * @returns 
+ */
+export function parseJsDocTags(params: AnalyzePhaseParams, tags: CustomTag) {
+  if (params.node.kind !== params.ts.SyntaxKind.ClassDeclaration) {
+    return;
+  }
+
+  const className = (params.node as unknown as ts.ClassDeclaration).name!.getText();
+  const component = params.moduleDoc?.declarations?.find(
+    (declaration) => declaration.name === className
+  ) as Component | undefined;
+  const customTags = Object.keys(tags || {});
+  let customComments = "/**";
+
+  // @ts-expect-error jsDoc is not a public API
+  params.node.jsDoc?.forEach((jsDoc: JSDocTag) => {
+    jsDoc?.tags?.forEach(
+      (tag: { tagName: { getText: () => string }; comment: string }) => {
+        const tagName = tag.tagName.getText();
+
+        if (customTags.includes(tagName)) {
+          customComments += `\n * @${tagName} ${tag.comment}`;
+        }
+      }
+    );
+  });
+
+  const parsed = parse(`${customComments}\n */`);
+  parsed[0]?.tags?.forEach((tagMeta) => {
+    const tagOptions = tags![tagMeta.tag];
+    if (!tagOptions) {
+      return;
+    }
+
+    const propName = tagOptions.mappedName || tagMeta.tag;
+    if (!component) {
+      return;
+    }
+    const existingProp = component[propName];
+    const cemTag: CEMTag = {
+      name: tagMeta.name === "-" ? "" : tagMeta.name,
+      default: tagMeta.default,
+      description: tagMeta.description.replace(/^\s?-/, "").trim(), // removes leading dash
+      type: tagMeta.type ? { text: tagMeta.type } : undefined,
+    };
+
+    if (!existingProp && tagOptions.isArray) {
+      component[propName] = [cemTag];
+    } else if (Array.isArray(component[propName])) {
+      component[propName].push(cemTag);
+    } else if (existingProp && !Array.isArray(component[propName])) {
+      component[propName] = [component[propName], cemTag];
+    } else {
+      component[propName] = cemTag;
+    }
+  });
 }
