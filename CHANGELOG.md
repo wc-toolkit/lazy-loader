@@ -1,5 +1,11 @@
 # @wc-toolkit/jsdoc-tags
 
+## 1.1.0
+
+### Minor Changes
+
+- 63e3efd: Added functionality to generate custom JSDoc tags in other plugins
+
 ## 1.0.3
 
 ### Patch Changes

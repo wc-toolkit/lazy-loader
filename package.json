@@ -1,6 +1,6 @@
 {
   "name": "@wc-toolkit/jsdoc-tags",
-  "version": "1.0.3",
+  "version": "1.1.0",
   "description": "A set of tools for retrieving and transforming data from the Custom Elements Manifest",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
