@@ -1,54 +1,11 @@
 import path from "path";
 import fs from "fs";
 import { Logger } from "./logger.js";
-import { Component, getAllComponents } from "@wc-toolkit/cem-utilities";
-
-/** An object where the key is the component tag-name. */
-export type ComponentConfig = {
-  /** The key is the component's tag-name (in lower-case) */
-  [key: string]: {
-    /** The path to the module where the component is defined */
-    importPath: string;
-    /** Any components used within this component that will be registered at the same time */
-    dependencies?: string[];
-  };
-};
-
-/** Configuration options for the `updateConfig` function */
-export type RuntimeConfiguration = {
-  /** Additional components that may not be included in your Custom Elements Manifest */
-  components?: ComponentConfig;
-  /** The root element to observe for your custom elements */
-  rootElement?: Element;
-  /** Component tag names that you would like to eager-load */
-  eagerLoad: string[];
-};
-
-export type Options = {
-  /** The template for creating the component's import path */
-  importPathTemplate?: (name: string, tagName: string) => string;
-  /** Path to output directory */
-  outdir?: string;
-  /** The of the loader file */
-  fileName?: string;
-  /** Class names of any components you would like to exclude from the custom data */
-  exclude?: string[];
-  /** Enables logging during the component loading process */
-  debug?: boolean;
-  /** Adds a prefix to tag name */
-  prefix?: string;
-  /** Adds a suffix to tag name */
-  suffix?: string;
-  /** Additional components that may not be included in your Custom Elements Manifest */
-  additionalComponents?: ComponentConfig;
-  /** Component tag names that you would like to eager-load */
-  eagerLoad?: string[];
-  /** Prevents plugin from executing */
-  skip?: boolean;
-};
+import { type Component, getAllComponents } from "@wc-toolkit/cem-utilities";
+import type { ComponentConfig, LazyLoaderOptions } from "./types.js";
 
 let log: Logger;
-let userOptions: Options;
+let userOptions: LazyLoaderOptions;
 const loaderTemplate = (components: ComponentConfig) => `
 let observer;
 let components = ${JSON.stringify(components, null, 2)};
@@ -107,7 +64,6 @@ function register(tagName) {
         ? `console.warn(\`<\${tagName}> is already registered\`);\n`
         : ""
     }
-
     cleanUp(component, tagName);
     return Promise.resolve();
   }
@@ -119,7 +75,6 @@ function register(tagName) {
         ? `console.warn(\`No component found for <\${tagName}>\`);\n`
         : ""
     }
-
     return Promise.resolve();
   }
 
@@ -131,7 +86,6 @@ function register(tagName) {
             ? `console.log(\`Loaded <\${tagName}> from \${component.importPath}\`);\n`
             : ""
         }
-
         cleanUp(component, tagName);
         resolve();
       })
@@ -153,9 +107,26 @@ function cleanUp(component, tagName) {
     observer.disconnect();
   }
 }
+${
+  userOptions.reducedFOUC
+    ? `
+/** Delay the display of the UI until all components have loaded */
+function reduceFOUC() {
+  Promise.allSettled(
+    [...document.querySelectorAll(":not(:defined)")].map((component) =>
+      customElements.whenDefined(component.tagName.toLowerCase())
+    )
+  ).then(() => document.body.classList.add("${userOptions.loadedClass}"));
 
+  // Add fallback in case a component fails to load
+  setTimeout(() => document.body.classList.add("${userOptions.loadedClass}"), ${userOptions.loadTimeout});
+}
+`
+    : ""
+}
 /** Initialize the loader */
 async function start(root = document.body) {
+  ${userOptions.reducedFOUC ? "reduceFOUC();\n" : ""}
   // Eager load any components that are not defined in the Custom Elements Manifest
   await Promise.allSettled(eagerLoad?.map((tagName) => register(tagName)));
 
@@ -179,7 +150,7 @@ start();
 
 export function generateLazyLoader(
   cem: unknown,
-  options: Options = {},
+  options: LazyLoaderOptions = {}
 ) {
   log = new Logger(options?.debug);
 
@@ -201,6 +172,9 @@ export function generateLazyLoader(
     debug: false,
     prefix: "",
     suffix: "",
+    loadedClass: "wc-loaded",
+    loadTimeout: 200,
+    getDependencies: (component) => getDependencies(component),
     ...options,
   };
 
@@ -234,7 +208,7 @@ export function generateLazyLoader(
           component.name,
           component.tagName!
         ),
-        dependencies: getDependencies(component.dependencies as unknown[]),
+        dependencies: userOptions.getDependencies!(component),
       };
     });
 
@@ -255,7 +229,8 @@ function isStringArray(arr?: unknown[]): arr is string[] {
   return arr?.every((item) => typeof item === "string") || false;
 }
 
-function getDependencies(deps?: unknown[]): string[] {
+function getDependencies(component: Component): string[] {
+  const deps = component.dependencies as unknown[];
   if (!deps?.length) {
     return [];
   }

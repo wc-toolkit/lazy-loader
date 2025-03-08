@@ -4,111 +4,79 @@
 
 </div>
 
-# WC Toolkit Custom JSDoc Tags Plugin
+# WC Toolkit Lazy Loader
 
-This is a plugin maps custom JSDoc tags on your component classes to properties in Custom Elements Manifest using the [Custom Element Manifest Analyzer](https://custom-elements-manifest.open-wc.org/).
+Create a single entry point to lazy-load your custom elements/web components as needed!
 
-## Installation 
+As components get loaded the component configurations get removed from the list and when all of the components have been loaded, the loader will shut off to help improve performance.
 
-```bash
-npm i -D @wc-toolkit/jsdoc-tags
+```html
+<body>
+  <my-button>Button</my-button>
+  <my-checkbox></my-checkbox>
+
+  <!-- the lazy-loader will only load what gets used -->
+  <script type="module" src="path/to/my/loader.js" />
+</body>
 ```
 
 ## Usage
 
-Add the information you would like to include with you component in the class's JSDoc comment using custom tags. In this example, the `@dependency`, `@since`, `@status`, and `@spec` tags are all custom.
+This package includes two ways to generate the custom data config file:
 
-```js
-// my-component.js
+1. calling a function in your build pipeline
+2. as a plugin for the [Custom Element Manifest Analyzer](https://custom-elements-manifest.open-wc.org/)
 
-/**
- *
- * My custom element does some amazing things
- *
- * @tag my-element
- *
- * @dependency icon
- * @dependency button
- *
- * @since 1.2.5
- * 
- * @status beta - not ready for production
- * 
- * @spec https://www.figma.com/...
- *
- */
-export class MyElement extends HTMLElement {
-  ...
-}
+### Install
+
+```bash
+npm i -D @wc-toolkit/lazy-loader
 ```
 
-In the [CEM analyzer config](https://custom-elements-manifest.open-wc.org/analyzer/config/), import the plugin and add the mappings for the new tags.
+### Build Pipeline
 
 ```js
-// custom-elements-manifest.config.mjs
+import { generateLazyLoader, type LazyLoaderOptions } from "@wc-toolkit/lazy-loader";
+import manifest from "./path/to/custom-elements.json" with { type: 'json' };
 
-import { jsDocTagsPlugin } from "@wc-toolkit/jsdoc-tags";
+const options: LazyLoaderOptions = {...};
+
+generateLazyLoader(manifest, options);
+```
+
+### CEM Analyzer
+
+#### Set-up
+
+Ensure the following steps have been taken in your component library prior to using this plugin:
+
+- Install and set up the [Custom Elements Manifest Analyzer](https://custom-elements-manifest.open-wc.org/analyzer/getting-started/)
+- Create a [config file](https://custom-elements-manifest.open-wc.org/analyzer/config/#config-file)
+
+#### Import
+
+```js
+// custom-elements-manifest.config.js
+
+import { lazyLoaderPlugin } from "@wc-toolkit/lazy-loader";
+
+const options = {...};
 
 export default {
-  ...
-  /** Provide custom plugins */
   plugins: [
-    jsDocTagsPlugin({
-      tags: {
-        // finds the values for the `@since` tag
-        since: {},
-        // finds the values for the `@status` tag
-        status: {},
-        // finds the values for the `@spec` tag
-        spec: {},
-        // finds the values for the `@dependency` tag
-        dependency: {
-          // maps the values to the `dependencies` property in the CEM
-          mappedName: 'dependencies',
-          // ensures the values are always in an array (even if there is only 1)
-          isArray: true,
-        },
-      }
-    }),
+    lazyLoaderPlugin(options)
   ],
 };
 ```
 
-## Result
+Once you run the analyzer, you should see a new file (`loader.js` by default) that users can import to load your components!
 
-The data should now be included in the Custom Elements Manifest.
+```js
+<script type="module" src="https://my-cdn.com/loader.js"></script>;
 
-```json
-// custom-elements.json
+// or
 
-{
-  "kind": "class",
-  "description": "My custom element does some amazing things",
-  "name": "MyElement",
-  "tagName": "my-element",
-  "since": {
-    "name": "1.2.5",
-    "description": ""
-  },
-  "status": {
-    "name": "beta",
-    "description": "not ready for production"
-  },
-  "spec": {
-    "name": "https://www.figma.com/...",
-    "description": ""
-  },
-  "dependencies": [
-    {
-      "name": "icon",
-      "description": ""
-    },
-    {
-      "name": "button",
-      "description": ""
-    }
-  ]
-}
+import "my-project/loader.js";
 ```
 
 <div style="text-align: center; margin-top: 32px;">

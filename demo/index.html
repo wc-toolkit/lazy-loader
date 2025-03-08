@@ -3,13 +3,111 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.20.0/cdn/themes/light.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.20.0/cdn/themes/light.css"
+    />
+    <style>
+      body:not(.wc-loaded) {
+        opacity: 0;
+      }
+    </style>
   </head>
   <body>
     <h1>Custom Element Lazy-Loader Test</h1>
 
     <div id="app">
       <sl-input type="text" placeholder="Enter a name"></sl-input>
+      <sl-alert open>
+        <sl-icon slot="icon" name="info-circle"></sl-icon>
+        This is a standard alert. You can customize its content and even the
+        icon.
+      </sl-alert>
+
+      <div class="animation-overview">
+        <sl-animation name="bounce" duration="2000" play
+          ><div class="box"></div
+        ></sl-animation>
+        <sl-animation name="jello" duration="2000" play
+          ><div class="box"></div
+        ></sl-animation>
+        <sl-animation name="heartBeat" duration="2000" play
+          ><div class="box"></div
+        ></sl-animation>
+        <sl-animation name="flip" duration="2000" play
+          ><div class="box"></div
+        ></sl-animation>
+      </div>
+      <sl-avatar label="User avatar"></sl-avatar>
+      <div>
+        <sl-badge variant="primary">Primary</sl-badge>
+        <sl-badge variant="success">Success</sl-badge>
+        <sl-badge variant="neutral">Neutral</sl-badge>
+        <sl-badge variant="warning">Warning</sl-badge>
+        <sl-badge variant="danger">Danger</sl-badge>
+      </div>
+
+      <sl-breadcrumb>
+        <sl-breadcrumb-item>Catalog</sl-breadcrumb-item>
+        <sl-breadcrumb-item>Clothing</sl-breadcrumb-item>
+        <sl-breadcrumb-item>Women's</sl-breadcrumb-item>
+        <sl-breadcrumb-item>Shirts &amp; Tops</sl-breadcrumb-item>
+      </sl-breadcrumb>
+
+      <div>
+        <sl-button variant="default">Default</sl-button>
+        <sl-button variant="primary">Primary</sl-button>
+        <sl-button variant="success">Success</sl-button>
+        <sl-button variant="neutral">Neutral</sl-button>
+        <sl-button variant="warning">Warning</sl-button>
+        <sl-button variant="danger">Danger</sl-button>
+      </div>
+      <sl-card class="card-overview">
+        <img
+          slot="image"
+          src="https://images.unsplash.com/photo-1559209172-0ff8f6d49ff7?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=80"
+          alt="A kitten sits patiently between a terracotta pot and decorative grasses."
+        />
+
+        <strong>Mittens</strong><br />
+        This kitten is as cute as he is playful. Bring him home today!<br />
+        <small>6 weeks old</small>
+
+        <div slot="footer">
+          <sl-button variant="primary" pill>More Info</sl-button>
+          <sl-rating></sl-rating>
+        </div>
+      </sl-card>
+
+      <sl-color-picker label="Select a color"></sl-color-picker>
+
+
+      <style>
+        .card-overview {
+          max-width: 300px;
+        }
+
+        .card-overview small {
+          color: var(--sl-color-neutral-500);
+        }
+
+        .card-overview [slot="footer"] {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+      </style>
+
+      <style>
+        .animation-overview .box {
+          display: inline-block;
+          width: 100px;
+          height: 100px;
+          background-color: var(--sl-color-primary-600);
+          margin: 1.5rem;
+        }
+      </style>
+
       <test-component></test-component>
     </div>
     <script type="module">

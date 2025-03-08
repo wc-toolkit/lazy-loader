@@ -390,8 +390,23 @@ function cleanUp(component, tagName) {
   }
 }
 
+/** Delay the display of the UI until all components have loaded */
+function reduceFOUC() {
+  Promise.allSettled(
+    [...document.querySelectorAll(":not(:defined)")].map((component) =>
+      customElements.whenDefined(component.tagName.toLowerCase())
+    )
+  ).then(() => document.body.classList.add("wc-loaded"));
+
+  // Add fallback in case a component fails to load
+  setTimeout(() => document.body.classList.add("wc-loaded"), 200);
+}
+
 /** Initialize the loader */
 async function start(root = document.body) {
+  console.log("Shoelace loader started", Object.entries(components).length);
+  reduceFOUC();
+
   // Eager load any components that are not defined in the Custom Elements Manifest
   await Promise.allSettled(eagerLoad?.map((tagName) => register(tagName)));
 
@@ -401,6 +416,7 @@ async function start(root = document.body) {
       for (const node of addedNodes) {
         if (node.nodeType === Node.ELEMENT_NODE) {
           load(node);
+          console.log("Shoelace loader started", Object.entries(components).length);
         }
       }
     }
