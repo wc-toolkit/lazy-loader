@@ -1,6 +1,6 @@
 <div align="center">
   
-![workbench with tools, html, css, javascript, and jsdoc logos](https://raw.githubusercontent.com/wc-toolkit/jsdoc-tags/refs/heads/main/assets/wc-toolkit_jsdoc.png)
+![workbench with tools, html, css, javascript, and download icon](https://raw.githubusercontent.com/wc-toolkit/lazy-loader/refs/heads/main/assets/wc-toolkit_lazy-loader.png)
 
 </div>
 
@@ -80,7 +80,7 @@ import "my-project/loader.js";
 ```
 
 <div style="text-align: center; margin-top: 32px;">
-  <a href="https://stackblitz.com/edit/stackblitz-starters-endx3har?file=README.md">
+  <a href="https://stackblitz.com/edit/vitejs-vite-rtmxxnnn?file=README.md" target="_blank">
     <img
       alt="Open in StackBlitz"
       src="https://developer.stackblitz.com/img/open_in_stackblitz.svg"
@@ -88,4 +88,4 @@ import "my-project/loader.js";
   </a>
 </div>
 
-Be sure to check out the [official docs](https://wc-toolkit.com/documentation/jsdoc-tags) for more information on how to use this.
+Be sure to check out the [official docs](https://wc-toolkit.com/adoption/lazy-loader) for more information on how to use this.
