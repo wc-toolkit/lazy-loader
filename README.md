@@ -80,7 +80,7 @@ import "my-project/loader.js";
 ```
 
 <div style="text-align: center; margin-top: 32px;">
-  <a href="https://stackblitz.com/edit/stackblitz-starters-endx3har?file=README.md">
+  <a href="https://stackblitz.com/edit/vitejs-vite-rtmxxnnn?file=README.md" target="_blank">
     <img
       alt="Open in StackBlitz"
       src="https://developer.stackblitz.com/img/open_in_stackblitz.svg"
@@ -88,4 +88,4 @@ import "my-project/loader.js";
   </a>
 </div>
 
-Be sure to check out the [official docs](https://wc-toolkit.com/documentation/lazy-loader) for more information on how to use this.
+Be sure to check out the [official docs](https://wc-toolkit.com/adoption/lazy-loader) for more information on how to use this.
