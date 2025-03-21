@@ -349,17 +349,16 @@ async function load(root) {
 
 /** Register the component and any dependencies */
 function register(tagName) {
+  const component = components[tagName];
+
   if (customElements.get(tagName)) {
     
-
     cleanUp(component, tagName);
     return Promise.resolve();
   }
 
-  const component = components[tagName];
   if (!component) {
     
-
     return Promise.resolve();
   }
 
@@ -367,7 +366,6 @@ function register(tagName) {
     import(component.importPath)
       .then(() => {
         
-
         cleanUp(component, tagName);
         resolve();
       })
@@ -404,7 +402,6 @@ function reduceFOUC() {
 
 /** Initialize the loader */
 async function start(root = document.body) {
-  console.log("Shoelace loader started", Object.entries(components).length);
   reduceFOUC();
 
   // Eager load any components that are not defined in the Custom Elements Manifest
@@ -416,7 +413,6 @@ async function start(root = document.body) {
       for (const node of addedNodes) {
         if (node.nodeType === Node.ELEMENT_NODE) {
           load(node);
-          console.log("Shoelace loader started", Object.entries(components).length);
         }
       }
     }
