@@ -58,6 +58,8 @@ async function load(root) {
 
 /** Register the component and any dependencies */
 function register(tagName) {
+  const component = components[tagName];
+
   if (customElements.get(tagName)) {
     ${
       userOptions.debug
@@ -68,7 +70,6 @@ function register(tagName) {
     return Promise.resolve();
   }
 
-  const component = components[tagName];
   if (!component) {
     ${
       userOptions.debug
